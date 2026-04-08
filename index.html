@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SmartMobile AI Assistant</title>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+
+<div class="app">
+  <div class="grid-bg"></div>
+  <div class="particles" id="particles"></div>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+      </div>
+      <div>
+        <div class="logo-text">SmartMobile AI</div>
+        <div class="logo-sub">Intelligent phone assistant</div>
+      </div>
+    </div>
+    <div class="status-dot">
+      <div class="dot"></div>
+      <span>System online</span>
+    </div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="main">
+
+    <!-- LEFT PANEL -->
+    <div class="left-panel">
+      <div class="section-label">Quick actions</div>
+      <div class="quick-actions">
+        <button class="qa-btn active" onclick="sendCmd('Torch on pannu')">
+          <div class="qa-icon amber-icon">
+            <svg viewBox="0 0 24 24" fill="#EF9F27"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/></svg>
+          </div>
+          <span class="qa-label">Torch</span>
+        </button>
+        <button class="qa-btn" onclick="sendCmd('WiFi settings open pannu')">
+          <div class="qa-icon blue-icon">
+            <svg viewBox="0 0 24 24" fill="#378ADD"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+          </div>
+          <span class="qa-label">Wi-Fi</span>
+        </button>
+        <button class="qa-btn" onclick="sendCmd('Bluetooth settings open pannu')">
+          <div class="qa-icon purple-icon">
+            <svg viewBox="0 0 24 24" fill="#7F77DD"><path d="M17.71 7.71L12 2h-1v7.59L6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 11 14.41V22h1l5.71-5.71-4.3-4.29 4.3-4.29zM13 5.83l1.88 1.88L13 9.59V5.83zm1.88 10.46L13 18.17v-3.76l1.88 1.88z"/></svg>
+          </div>
+          <span class="qa-label">Bluetooth</span>
+        </button>
+        <button class="qa-btn" onclick="sendCmd('Accessibility settings explain pannu')">
+          <div class="qa-icon teal-icon">
+            <svg viewBox="0 0 24 24" fill="#1D9E75"><path d="M12 2c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm9 7h-6v13h-2v-6h-2v6H9V9H3V7h18v2z"/></svg>
+          </div>
+          <span class="qa-label">Access.</span>
+        </button>
+        <button class="qa-btn" onclick="sendCmd('Battery settings epdi use panrathu?')">
+          <div class="qa-icon teal-icon">
+            <svg viewBox="0 0 24 24" fill="#1D9E75"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+          </div>
+          <span class="qa-label">Battery</span>
+        </button>
+        <button class="qa-btn" onclick="sendCmd('Sound settings epdi maathanum?')">
+          <div class="qa-icon coral-icon">
+            <svg viewBox="0 0 24 24" fill="#D85A30"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+          </div>
+          <span class="qa-label">Sound</span>
+        </button>
+        <button class="qa-btn" onclick="sendCmd('Storage settings check pannu')">
+          <div class="qa-icon blue-icon">
+            <svg viewBox="0 0 24 24" fill="#378ADD"><path d="M20 6h-2.18c.07-.44.18-.86.18-1 0-2.21-1.79-4-4-4S10 2.79 10 5c0 .14.11.56.18 1H8c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h12c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2z"/></svg>
+          </div>
+          <span class="qa-label">Storage</span>
+        </button>
+        <button class="qa-btn" onclick="sendCmd('Camera open pannu')">
+          <div class="qa-icon purple-icon">
+            <svg viewBox="0 0 24 24" fill="#7F77DD"><path d="M12 15.2c-1.77 0-3.2-1.43-3.2-3.2s1.43-3.2 3.2-3.2 3.2 1.43 3.2 3.2-1.43 3.2-3.2 3.2zM9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9z"/></svg>
+          </div>
+          <span class="qa-label">Camera</span>
+        </button>
+      </div>
+
+      <div class="section-label">Chat assistant</div>
+      <div class="chat-area" id="chatArea">
+        <div class="msg bot">
+          <div class="bubble">Vanakkam! Naan un smart mobile assistant. Settings, files, images — ella help-um kudukiren. Enna venum nu sollu!</div>
+          <div class="msg-time">Just now</div>
+        </div>
+      </div>
+
+      <div class="suggestion-chips" id="chips">
+        <div class="chip" onclick="sendCmd('TalkBack na enna?')">TalkBack enna?</div>
+        <div class="chip" onclick="sendCmd('Ringtone epdi maathanum?')">Ringtone maathu</div>
+        <div class="chip" onclick="sendCmd('Battery drain aaguthu')">Battery issue</div>
+        <div class="chip" onclick="sendCmd('Screenshot files kaatu')">Screenshots</div>
+        <div class="chip" onclick="sendCmd('Dark mode epdi on pannu?')">Dark mode</div>
+      </div>
+
+      <div class="input-row">
+        <button class="mic-btn" id="micBtn" onclick="toggleMic()" title="Voice input">
+          <svg viewBox="0 0 24 24" fill="#1D9E75"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>
+        </button>
+        <input class="chat-input" id="chatInput" placeholder="Type or voice — Tamil/English ok..." onkeydown="if(event.key==='Enter')sendMessage()"/>
+        <button class="send-btn" onclick="sendMessage()">
+          <svg viewBox="0 0 24 24" fill="white"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="right-panel">
+      <div class="alert-strip">
+        <svg viewBox="0 0 24 24" fill="#EF9F27" width="14" height="14"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+        <div class="alert-text">Storage 87% full — 340 screenshots detected</div>
+      </div>
+
+      <div class="section-label">Settings guide</div>
+      <div class="settings-cards">
+        <div class="s-card" onclick="sendCmd('Accessibility settings full explain pannu')">
+          <div class="s-card-top">
+            <div class="s-card-icon teal-icon">
+              <svg viewBox="0 0 24 24" fill="#1D9E75"><path d="M12 2c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm9 7h-6v13h-2v-6h-2v6H9V9H3V7h18v2z"/></svg>
+            </div>
+            <span class="s-card-title">Accessibility</span>
+          </div>
+          <div class="s-card-desc">TalkBack, magnification, voice access guide</div>
+        </div>
+        <div class="s-card" onclick="sendCmd('Privacy settings explain pannu')">
+          <div class="s-card-top">
+            <div class="s-card-icon purple-icon">
+              <svg viewBox="0 0 24 24" fill="#7F77DD"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+            </div>
+            <span class="s-card-title">Privacy &amp; security</span>
+          </div>
+          <div class="s-card-desc">Permissions, fingerprint, face lock</div>
+        </div>
+        <div class="s-card" onclick="sendCmd('Notification settings epdi manage panrathu?')">
+          <div class="s-card-top">
+            <div class="s-card-icon blue-icon">
+              <svg viewBox="0 0 24 24" fill="#378ADD"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+            </div>
+            <span class="s-card-title">Notifications</span>
+          </div>
+          <div class="s-card-desc">App alerts, Do Not Disturb, silent</div>
+        </div>
+      </div>
+
+      <div class="section-label">Device status</div>
+      <div class="toggles-section">
+        <div class="toggle-row">
+          <span class="toggle-label">Torch</span>
+          <label class="toggle"><input type="checkbox" id="torchT" onchange="handleToggle('torch',this.checked)"><span class="slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <span class="toggle-label">Wi-Fi</span>
+          <label class="toggle"><input type="checkbox" checked onchange="handleToggle('wifi',this.checked)"><span class="slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <span class="toggle-label">Bluetooth</span>
+          <label class="toggle"><input type="checkbox" onchange="handleToggle('bluetooth',this.checked)"><span class="slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <span class="toggle-label">Silent mode</span>
+          <label class="toggle"><input type="checkbox" onchange="handleToggle('silent',this.checked)"><span class="slider"></span></label>
+        </div>
+      </div>
+
+      <div class="section-label" style="margin-top:16px;">Stats</div>
+      <div class="stat-row">
+        <div class="stat-card">
+          <div class="stat-val green-val">12</div>
+          <div class="stat-lbl">Commands today</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val amber-val">87%</div>
+          <div class="stat-lbl">Storage used</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val blue-val">340</div>
+          <div class="stat-lbl">Screenshots</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val purple-val">5</div>
+          <div class="stat-lbl">Settings opened</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
