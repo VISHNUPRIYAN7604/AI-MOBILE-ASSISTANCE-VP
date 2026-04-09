@@ -285,6 +285,7 @@ function triggerNativeSetting(keyword) {
   let name = null;
   
   // Refined Intents for better compatibility
+  // Comprehensive Settings Mapping
   if(keyword.includes('wifi')) { actionStr = isWin ? 'ms-settings:network-wifi' : 'intent:#Intent;action=android.settings.WIFI_SETTINGS;end'; name = "Wi-Fi"; }
   else if(keyword.includes('bluetooth')) { actionStr = isWin ? 'ms-settings:bluetooth' : 'intent:#Intent;action=android.settings.BLUETOOTH_SETTINGS;end'; name = "Bluetooth"; }
   else if(keyword.includes('battery')) { actionStr = isWin ? 'ms-settings:batterysaver' : 'intent:#Intent;action=android.settings.BATTERY_SAVER_SETTINGS;end'; name = "Battery"; }
@@ -296,8 +297,28 @@ function triggerNativeSetting(keyword) {
   else if(keyword.includes('youtube')) { actionStr = 'intent://www.youtube.com#Intent;scheme=http;package=com.google.android.youtube;end'; name = "YouTube"; }
   else if(keyword.includes('whatsapp')) { actionStr = 'intent://send#Intent;scheme=whatsapp;package=com.whatsapp;end'; name = "WhatsApp"; }
   else if(keyword.includes('phone') || keyword.includes('dial')) { actionStr = 'tel:'; name = "Phone Dialer"; }
+  
+  // NEW SYSTEM SETTINGS & NETWORK
+  else if(keyword.includes('data') || keyword.includes('sim') || keyword.includes('network') || keyword.includes('operator')) { 
+     actionStr = isWin ? 'ms-settings:network-cellular' : 'intent:#Intent;action=android.settings.DATA_ROAMING_SETTINGS;end'; name = "Mobile Data/SIM"; 
+  }
+  else if(keyword.includes('airplane') || keyword.includes('flight')) { 
+     actionStr = isWin ? 'ms-settings:network-airplanemode' : 'intent:#Intent;action=android.settings.AIRPLANE_MODE_SETTINGS;end'; name = "Airplane Mode"; 
+  }
+  else if(keyword.includes('location') || keyword.includes('gps')) { 
+     actionStr = isWin ? 'ms-settings:privacy-location' : 'intent:#Intent;action=android.settings.LOCATION_SOURCE_SETTINGS;end'; name = "Location/GPS"; 
+  }
+  else if(keyword.includes('time') || keyword.includes('date')) { 
+     actionStr = isWin ? 'ms-settings:dateandtime' : 'intent:#Intent;action=android.settings.DATE_SETTINGS;end'; name = "Date & Time"; 
+  }
+  else if(keyword.includes('info') || keyword.includes('about')) { 
+     actionStr = isWin ? 'ms-settings:about' : 'intent:#Intent;action=android.settings.DEVICE_INFO_SETTINGS;end'; name = "About Device"; 
+  }
+  else if(keyword.includes('dev')) { 
+     actionStr = isWin ? 'ms-settings:developers' : 'intent:#Intent;action=android.settings.APPLICATION_DEVELOPMENT_SETTINGS;end'; name = "Developer Options"; 
+  }
   else if(keyword.includes('msg') || keyword.includes('sms')) { actionStr = 'sms:'; name = "Messages"; }
-  else if(keyword.includes('settings')) { actionStr = isWin ? 'ms-settings:general' : 'intent:android.settings.SETTINGS#Intent;end'; name = "Settings"; }
+  else if(keyword.includes('settings')) { actionStr = isWin ? 'ms-settings:general' : 'intent:android.settings.SETTINGS#Intent;end'; name = "All Settings"; }
 
   if (actionStr) {
     setTimeout(() => {
