@@ -321,24 +321,19 @@ function triggerNativeSetting(keyword) {
   else if(keyword.includes('settings')) { actionStr = isWin ? 'ms-settings:general' : 'intent:android.settings.SETTINGS#Intent;end'; name = "All Settings"; }
 
   if (actionStr) {
-    setTimeout(() => {
-      let allowed = confirm(`SmartMobile AI wants to access your device ${name} settings.\n\nAllow Permission?`);
-      if(allowed) {
-         try {
-           // Bypassing browser blocks with a dynamic anchor tag
-           const anchor = document.createElement('a');
-           anchor.href = actionStr;
-           anchor.target = "_blank";
-           anchor.rel = "noopener noreferrer";
-           anchor.click();
-           
-           addMsg(`🚀 Attempting to open ${name}... If it doesn't open, your browser might be blocking it.`, 'bot');
-         } catch(e) {
-           console.error("Link trigger failed", e);
-           addMsg(`⚠️ Error: Could not launch ${name} automatically.`, 'bot');
-         }
-      }
-    }, 500);
+     try {
+       // Bypassing browser blocks with a dynamic anchor tag directly without extra confirm
+       const anchor = document.createElement('a');
+       anchor.href = actionStr;
+       anchor.target = "_blank";
+       anchor.rel = "noopener noreferrer";
+       anchor.click();
+       
+       addMsg(`🚀 Direct Access: Opening ${name}...`, 'bot');
+     } catch(e) {
+       console.error("Direct trigger failed", e);
+       addMsg(`⚠️ Error: Could not launch ${name}.`, 'bot');
+     }
   }
 }
 
