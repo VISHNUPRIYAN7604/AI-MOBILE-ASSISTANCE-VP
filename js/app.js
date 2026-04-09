@@ -190,27 +190,7 @@ async function sendCmd(cmd) {
     addMsg(botReply, 'bot');
     
     // NATIVE SETTINGS INTENT LOGIC
-    let action = null;
-    let name = null;
-    if(c.includes('wifi')) { action = 'android.settings.WIFI_SETTINGS'; name = "Wi-Fi"; }
-    else if(c.includes('bluetooth')) { action = 'android.settings.BLUETOOTH_SETTINGS'; name = "Bluetooth"; }
-    else if(c.includes('battery')) { action = 'android.settings.BATTERY_SAVER_SETTINGS'; name = "Battery"; }
-    else if(c.includes('sound') || c.includes('ringtone')) { action = 'android.settings.SOUND_SETTINGS'; name = "Sound/Ringtone"; }
-    else if(c.includes('storage')) { action = 'android.settings.INTERNAL_STORAGE_SETTINGS'; name = "Storage"; }
-    else if(c.includes('camera')) { action = 'android.media.action.STILL_IMAGE_CAMERA'; name = "Camera"; }
-    else if(c.includes('access')) { action = 'android.settings.ACCESSIBILITY_SETTINGS'; name = "Accessibility"; }
-    else if(c.includes('dark') || c.includes('display')) { action = 'android.settings.DISPLAY_SETTINGS'; name = "Display"; }
-    else if(c.includes('privacy')) { action = 'android.settings.PRIVACY_SETTINGS'; name = "Privacy"; }
-    else if(c.includes('notification')) { action = 'android.settings.APP_NOTIFICATION_SETTINGS'; name = "Notifications"; }
-
-    if (action && !c.includes('torch')) {
-      setTimeout(() => {
-        let allowed = confirm(`SmartMobile AI wants to access your device ${name} settings.\n\nAllow Permission?`);
-        if(allowed) {
-           window.location.href = "intent:#Intent;action=" + action + ";end";
-        }
-      }, 500);
-    }
+    triggerNativeSetting(c);
   }, 900);
 }
 
@@ -242,21 +222,37 @@ async function handleToggle(type, on) {
     addMsg(botReply, 'bot');
     
     // NATIVE TOGGLE INTENT LOGIC
-    let action = null;
-    let name = null;
-    if(type === 'wifi') { action = 'android.settings.WIFI_SETTINGS'; name = "Wi-Fi"; }
-    else if(type === 'bluetooth') { action = 'android.settings.BLUETOOTH_SETTINGS'; name = "Bluetooth"; }
-    else if(type === 'silent') { action = 'android.settings.SOUND_SETTINGS'; name = "Sound"; }
-    
-    if (action && type !== 'torch') {
-       setTimeout(() => {
-         let allowed = confirm(`SmartMobile AI wants to access your device ${name} settings.\n\nAllow Permission?`);
-         if(allowed) {
-            window.location.href = "intent:#Intent;action=" + action + ";end";
-         }
-       }, 500);
-    }
+    triggerNativeSetting(type);
   }, 700);
+}
+
+// ===== PLATFORM SPECIFIC DEEP LINKS =====
+function triggerNativeSetting(keyword) {
+  if (keyword.includes('torch')) return; // handled via hardware api
+  
+  const isWin = navigator.userAgent.toLowerCase().includes('windows');
+  let actionStr = null;
+  let name = null;
+  
+  if(keyword.includes('wifi')) { actionStr = isWin ? 'ms-settings:network-wifi' : 'intent:#Intent;action=android.settings.WIFI_SETTINGS;end'; name = "Wi-Fi"; }
+  else if(keyword.includes('bluetooth')) { actionStr = isWin ? 'ms-settings:bluetooth' : 'intent:#Intent;action=android.settings.BLUETOOTH_SETTINGS;end'; name = "Bluetooth"; }
+  else if(keyword.includes('battery')) { actionStr = isWin ? 'ms-settings:batterysaver' : 'intent:#Intent;action=android.settings.BATTERY_SAVER_SETTINGS;end'; name = "Battery"; }
+  else if(keyword.includes('sound') || keyword.includes('ringtone') || keyword.includes('silent')) { actionStr = isWin ? 'ms-settings:sound' : 'intent:#Intent;action=android.settings.SOUND_SETTINGS;end'; name = "Sound"; }
+  else if(keyword.includes('storage')) { actionStr = isWin ? 'ms-settings:storagesense' : 'intent:#Intent;action=android.settings.INTERNAL_STORAGE_SETTINGS;end'; name = "Storage"; }
+  else if(keyword.includes('camera')) { actionStr = isWin ? 'microsoft.windows.camera:' : 'intent:#Intent;action=android.media.action.STILL_IMAGE_CAMERA;end'; name = "Camera"; }
+  else if(keyword.includes('access')) { actionStr = isWin ? 'ms-settings:easeofaccess-narrator' : 'intent:#Intent;action=android.settings.ACCESSIBILITY_SETTINGS;end'; name = "Accessibility"; }
+  else if(keyword.includes('dark') || keyword.includes('display')) { actionStr = isWin ? 'ms-settings:colors' : 'intent:#Intent;action=android.settings.DISPLAY_SETTINGS;end'; name = "Display"; }
+  else if(keyword.includes('privacy')) { actionStr = isWin ? 'ms-settings:privacy' : 'intent:#Intent;action=android.settings.PRIVACY_SETTINGS;end'; name = "Privacy"; }
+  else if(keyword.includes('notification')) { actionStr = isWin ? 'ms-settings:notifications' : 'intent:#Intent;action=android.settings.APP_NOTIFICATION_SETTINGS;end'; name = "Notifications"; }
+
+  if (actionStr) {
+    setTimeout(() => {
+      let allowed = confirm(`SmartMobile AI wants to access your device ${name} settings.\n\nAllow Permission?`);
+      if(allowed) {
+         window.location.href = actionStr;
+      }
+    }, 500);
+  }
 }
 
 // ===== MIC TOGGLE =====
