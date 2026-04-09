@@ -112,6 +112,16 @@ async function controlFlashlight(turnOn) {
 
 let pendingFileAction = null;
 let relatedFiles = [];
+let indexedFiles = []; // Store real filenames here
+
+function indexFiles(files) {
+  indexedFiles = Array.from(files).map(f => ({
+    name: f.name,
+    path: f.webkitRelativePath || f.name,
+    type: f.type || 'document/unknown'
+  }));
+  addMsg(`✅ ${indexedFiles.length} files successfully indexed! Search ippo work aagum.`, 'bot');
+}
 
 async function sendCmd(cmd) {
   addMsg(cmd, 'user');
@@ -122,19 +132,26 @@ async function sendCmd(cmd) {
 
   // STATE MACHINE FOR FILE SEARCH
   if (pendingFileAction) {
-    if (c.includes('1') || c.includes('2') || c.includes('3')) {
-       let idx = parseInt(c.match(/[1-3]/)[0]) - 1;
-       let chosenFile = relatedFiles[idx];
-       botReply = `📂 Opening ${chosenFile}... (System file viewer triggered)`;
-       pendingFileAction = null;
+    const numMatch = c.match(/[1-5]/);
+    if (numMatch) {
+       let idx = parseInt(numMatch[0]) - 1;
+       if (relatedFiles[idx]) {
+         let chosen = relatedFiles[idx].name;
+         botReply = `📂 Opening ${chosen}... (System file viewer triggered)`;
+         pendingFileAction = null;
+       } else {
+         botReply = `Antha number-la file illaiye. 1-லிருந்து ${relatedFiles.length} வரை ஒரு நம்பர் சொல்லுங்க.`;
+         setTimeout(() => { t.remove(); addMsg(botReply, 'bot'); }, 900);
+         return;
+       }
     } else if (c.includes('yes') || c.includes('aama') || c.includes('open') || c.includes('ok')) {
-       botReply = `📂 Opening ${relatedFiles[0]}... (System file viewer triggered)`;
+       botReply = `📂 Opening ${relatedFiles[0].name}... (System file viewer triggered)`;
        pendingFileAction = null;
     } else if (c.includes('no') || c.includes('vena') || c.includes('cancel')) {
        botReply = `👍 Okay, file open pannala.`;
        pendingFileAction = null;
     } else {
-       botReply = `Onnum puriyala. 1, 2, 3 nu oru number type pannunga, illatha pacha 'No' sollunga.`;
+       botReply = `Onnum puriyala. 1-லிருந்து ${relatedFiles.length} வரை ஒரு நம்பர் டைப் பண்ணுங்க.`;
        setTimeout(() => { t.remove(); addMsg(botReply, 'bot'); }, 900);
        return;
     }
@@ -148,23 +165,36 @@ async function sendCmd(cmd) {
   
   // SEARCH COMMAND INTERCEPT
   if (c.includes('search') || c.includes('find') || c.includes('file') || c.includes('thedi')) {
+    if (indexedFiles.length === 0) {
+      botReply = `📂 Search panna modhalla unga Storage-ah connect pannanum.<br><br><button class="chip" style="background:#1D9E75; color:white; border:none; padding:10px; border-radius:8px; cursor:pointer;" onclick="document.getElementById('fileIndexer').click()">Connect & Index Now</button>`;
+      setTimeout(() => { t.remove(); addMsg(botReply, 'bot'); }, 900);
+      return;
+    }
+
     const searchMatch = c.match(/(?:search|find|file|thedi)\s+([a-zA-Z0-9_\-\.]+)/i);
-    let keyword = searchMatch ? searchMatch[1] : 'document.pdf';
+    let keyword = searchMatch ? searchMatch[1].toLowerCase() : '';
     
-    if (!searchMatch) {
+    if (!keyword) {
        const words = c.split(' ');
-       words.forEach(w => { if(w.includes('.')) keyword = w; });
+       words.forEach(w => { if(w.includes('.')) keyword = w.toLowerCase().split('.')[0]; });
     }
     
-    let baseName = keyword.split('.')[0];
-    relatedFiles = [
-       baseName + '.pdf',
-       baseName + '_final.docx',
-       baseName + '_copy.png'
-    ];
+    // Privacy Filter & Matching
+    const privacyWords = ['private', 'secret', 'password', 'personal', 'hidden', 'lock'];
+    relatedFiles = indexedFiles.filter(f => {
+       const nameLower = f.name.toLowerCase();
+       const isMatch = nameLower.includes(keyword);
+       const isPrivate = privacyWords.some(pw => nameLower.includes(pw));
+       return isMatch && !isPrivate;
+    }).slice(0, 5); // Pick top 5 related
     
-    pendingFileAction = baseName;
-    botReply = `🔍 '${keyword}' thodarbaana files kedachiruku:<br><br>1. 📄 ${relatedFiles[0]}<br>2. 📝 ${relatedFiles[1]}<br>3. 🖼️ ${relatedFiles[2]}<br><br>Idhula yetha open pannanum? (1, 2, 3 endru type pannunga. Vendaam na 'No' sollunga)`;
+    if (relatedFiles.length === 0) {
+       botReply = `🔍 Sorry, '${keyword}' appadi oru file illai (illana adhu Privacy-la block aairukalam).`;
+    } else {
+       pendingFileAction = keyword;
+       let listHTML = relatedFiles.map((f, i) => `${i+1}. ${f.name.endsWith('.pdf') ? '📄' : (f.name.match(/\.(jpg|jpeg|png)$/i) ? '🖼️' : '📁')} ${f.name}`).join('<br>');
+       botReply = `🔍 '${keyword}' thodarbaana files kedachiruku:<br><br>${listHTML}<br><br>Idhula yetha open pannanum? (Number type pannunga or type No)`;
+    }
     
     setTimeout(() => {
       t.remove();
