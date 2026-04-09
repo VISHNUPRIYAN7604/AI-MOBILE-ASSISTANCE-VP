@@ -256,18 +256,64 @@ function triggerNativeSetting(keyword) {
 }
 
 // ===== MIC TOGGLE =====
+// ===== MIC TOGGLE & SPEECH RECOGNITION =====
 let micOn = false;
+let recognition = null;
+
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SpeechRecognition();
+  recognition.lang = 'en-IN'; 
+  recognition.interimResults = true;
+
+  recognition.onresult = function(event) {
+    let finalTranscript = '';
+    let interimTranscript = '';
+    for (let i = event.resultIndex; i < event.results.length; ++i) {
+      if (event.results[i].isFinal) {
+        finalTranscript += event.results[i][0].transcript;
+      } else {
+        interimTranscript += event.results[i][0].transcript;
+      }
+    }
+    const inp = document.getElementById('chatInput');
+    inp.value = finalTranscript || interimTranscript;
+    
+    if (finalTranscript) {
+       setTimeout(() => { sendMessage(); }, 600);
+    }
+  };
+
+  recognition.onend = function() {
+    micOn = false;
+    document.getElementById('micBtn').classList.remove('recording');
+    document.getElementById('chatInput').placeholder = "Type or voice — Tamil/English ok...";
+  };
+  
+  recognition.onerror = function(event) {
+    console.error("Speech error", event.error);
+    micOn = false;
+    document.getElementById('micBtn').classList.remove('recording');
+    document.getElementById('chatInput').placeholder = "Type or voice — Tamil/English ok...";
+  };
+}
+
 function toggleMic() {
-  micOn = !micOn;
+  if (!recognition) {
+    alert("Speech Recognition not supported here. Use Chrome/Edge.");
+    return;
+  }
   const btn = document.getElementById('micBtn');
-  btn.classList.toggle('recording', micOn);
-  if (micOn) {
-    setTimeout(() => {
-      micOn = false;
-      btn.classList.remove('recording');
-      document.getElementById('chatInput').value = 'Torch on pannu';
-      document.getElementById('chatInput').focus();
-    }, 2000);
+  if (!micOn) {
+    try {
+      document.getElementById('chatInput').value = '';
+      document.getElementById('chatInput').placeholder = "Listening... Speak now";
+      recognition.start();
+      micOn = true;
+      btn.classList.add('recording');
+    } catch (e) { console.error(e); }
+  } else {
+    recognition.stop();
   }
 }
 
