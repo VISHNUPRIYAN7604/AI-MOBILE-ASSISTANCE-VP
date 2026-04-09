@@ -115,11 +115,7 @@ let relatedFiles = [];
 let indexedFiles = []; // Store real filenames here
 
 function indexFiles(files) {
-  indexedFiles = Array.from(files).map(f => ({
-    name: f.name,
-    path: f.webkitRelativePath || f.name,
-    type: f.type || 'document/unknown'
-  }));
+  indexedFiles = Array.from(files); // Actual File objects storage
   addMsg(`✅ ${indexedFiles.length} files successfully indexed! Search ippo work aagum.`, 'bot');
 }
 
@@ -136,8 +132,18 @@ async function sendCmd(cmd) {
     if (numMatch) {
        let idx = parseInt(numMatch[0]) - 1;
        if (relatedFiles[idx]) {
-         let chosen = relatedFiles[idx].name;
-         botReply = `📂 Opening ${chosen}... (System file viewer triggered)`;
+         let chosenFile = relatedFiles[idx];
+         botReply = `📂 Opening ${chosenFile.name}...`;
+         
+         // REAL OPEN LOGIC
+         setTimeout(() => {
+           let allowed = confirm(`SmartMobile AI: Open "${chosenFile.name}"?`);
+           if(allowed) {
+             const fileURL = URL.createObjectURL(chosenFile);
+             window.open(fileURL, '_blank');
+           }
+         }, 500);
+
          pendingFileAction = null;
        } else {
          botReply = `Antha number-la file illaiye. 1-லிருந்து ${relatedFiles.length} வரை ஒரு நம்பர் சொல்லுங்க.`;
@@ -145,7 +151,11 @@ async function sendCmd(cmd) {
          return;
        }
     } else if (c.includes('yes') || c.includes('aama') || c.includes('open') || c.includes('ok')) {
-       botReply = `📂 Opening ${relatedFiles[0].name}... (System file viewer triggered)`;
+       botReply = `📂 Opening ${relatedFiles[0].name}...`;
+       setTimeout(() => {
+          const fileURL = URL.createObjectURL(relatedFiles[0]);
+          window.open(fileURL, '_blank');
+       }, 500);
        pendingFileAction = null;
     } else if (c.includes('no') || c.includes('vena') || c.includes('cancel')) {
        botReply = `👍 Okay, file open pannala.`;
