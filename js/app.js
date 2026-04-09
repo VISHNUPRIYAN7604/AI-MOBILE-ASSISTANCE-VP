@@ -174,7 +174,17 @@ async function sendCmd(cmd) {
   }
   
   // SEARCH COMMAND INTERCEPT
-  if (c.includes('search') || c.includes('find') || c.includes('file') || c.includes('thedi')) {
+  if (c.includes('search') || c.includes('find') || c.includes('file') || c.includes('thedi') || c.includes('open')) {
+    // Check if it's an APP launch request first
+    const apps = ['camera', 'calculator', 'maps', 'youtube', 'whatsapp', 'phone', 'messages', 'settings'];
+    let foundApp = apps.find(a => c.includes(a));
+    
+    if (foundApp) {
+       triggerNativeSetting(foundApp);
+       setTimeout(() => { t.remove(); }, 900);
+       return;
+    }
+
     if (indexedFiles.length === 0) {
       botReply = `📂 Search panna modhalla unga Storage-ah connect pannanum.<br><br><button class="chip" style="background:#1D9E75; color:white; border:none; padding:10px; border-radius:8px; cursor:pointer;" onclick="document.getElementById('fileIndexer').click()">Connect & Index Now</button>`;
       setTimeout(() => { t.remove(); addMsg(botReply, 'bot'); }, 900);
@@ -284,6 +294,15 @@ function triggerNativeSetting(keyword) {
   else if(keyword.includes('dark') || keyword.includes('display')) { actionStr = isWin ? 'ms-settings:colors' : 'intent:#Intent;action=android.settings.DISPLAY_SETTINGS;end'; name = "Display"; }
   else if(keyword.includes('privacy')) { actionStr = isWin ? 'ms-settings:privacy' : 'intent:#Intent;action=android.settings.PRIVACY_SETTINGS;end'; name = "Privacy"; }
   else if(keyword.includes('notification')) { actionStr = isWin ? 'ms-settings:notifications' : 'intent:#Intent;action=android.settings.APP_NOTIFICATION_SETTINGS;end'; name = "Notifications"; }
+  
+  // NEW APPS SUPPORT
+  else if(keyword.includes('calculator')) { actionStr = isWin ? 'calculator:' : 'intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.APP_CALCULATOR;end'; name = "Calculator"; }
+  else if(keyword.includes('maps')) { actionStr = isWin ? 'bingmaps:' : 'geo:0,0?q='; name = "Maps"; }
+  else if(keyword.includes('youtube')) { actionStr = 'https://www.youtube.com'; name = "YouTube"; }
+  else if(keyword.includes('whatsapp')) { actionStr = 'whatsapp://send'; name = "WhatsApp"; }
+  else if(keyword.includes('phone') || keyword.includes('dial')) { actionStr = 'tel:'; name = "Phone Dialer"; }
+  else if(keyword.includes('msg') || keyword.includes('sms')) { actionStr = 'sms:'; name = "Messages"; }
+  else if(keyword.includes('settings')) { actionStr = isWin ? 'ms-settings:general' : 'intent:#Intent;action=android.settings.SETTINGS;end'; name = "Settings"; }
 
   if (actionStr) {
     setTimeout(() => {
