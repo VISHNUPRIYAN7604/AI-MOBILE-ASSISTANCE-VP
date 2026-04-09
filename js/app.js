@@ -130,6 +130,29 @@ async function sendCmd(cmd) {
   setTimeout(() => {
     t.remove();
     addMsg(botReply, 'bot');
+    
+    // NATIVE SETTINGS INTENT LOGIC
+    let action = null;
+    let name = null;
+    if(c.includes('wifi')) { action = 'android.settings.WIFI_SETTINGS'; name = "Wi-Fi"; }
+    else if(c.includes('bluetooth')) { action = 'android.settings.BLUETOOTH_SETTINGS'; name = "Bluetooth"; }
+    else if(c.includes('battery')) { action = 'android.settings.BATTERY_SAVER_SETTINGS'; name = "Battery"; }
+    else if(c.includes('sound') || c.includes('ringtone')) { action = 'android.settings.SOUND_SETTINGS'; name = "Sound/Ringtone"; }
+    else if(c.includes('storage')) { action = 'android.settings.INTERNAL_STORAGE_SETTINGS'; name = "Storage"; }
+    else if(c.includes('camera')) { action = 'android.media.action.STILL_IMAGE_CAMERA'; name = "Camera"; }
+    else if(c.includes('access')) { action = 'android.settings.ACCESSIBILITY_SETTINGS'; name = "Accessibility"; }
+    else if(c.includes('dark') || c.includes('display')) { action = 'android.settings.DISPLAY_SETTINGS'; name = "Display"; }
+    else if(c.includes('privacy')) { action = 'android.settings.PRIVACY_SETTINGS'; name = "Privacy"; }
+    else if(c.includes('notification')) { action = 'android.settings.APP_NOTIFICATION_SETTINGS'; name = "Notifications"; }
+
+    if (action && !c.includes('torch')) {
+      setTimeout(() => {
+        let allowed = confirm(`SmartMobile AI wants to access your device ${name} settings.\n\nAllow Permission?`);
+        if(allowed) {
+           window.location.href = "intent:#Intent;action=" + action + ";end";
+        }
+      }, 500);
+    }
   }, 900);
 }
 
@@ -159,6 +182,22 @@ async function handleToggle(type, on) {
   setTimeout(() => {
     t.remove();
     addMsg(botReply, 'bot');
+    
+    // NATIVE TOGGLE INTENT LOGIC
+    let action = null;
+    let name = null;
+    if(type === 'wifi') { action = 'android.settings.WIFI_SETTINGS'; name = "Wi-Fi"; }
+    else if(type === 'bluetooth') { action = 'android.settings.BLUETOOTH_SETTINGS'; name = "Bluetooth"; }
+    else if(type === 'silent') { action = 'android.settings.SOUND_SETTINGS'; name = "Sound"; }
+    
+    if (action && type !== 'torch') {
+       setTimeout(() => {
+         let allowed = confirm(`SmartMobile AI wants to access your device ${name} settings.\n\nAllow Permission?`);
+         if(allowed) {
+            window.location.href = "intent:#Intent;action=" + action + ";end";
+         }
+       }, 500);
+    }
   }, 700);
 }
 
