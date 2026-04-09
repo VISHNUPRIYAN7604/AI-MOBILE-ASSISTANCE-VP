@@ -284,31 +284,38 @@ function triggerNativeSetting(keyword) {
   let actionStr = null;
   let name = null;
   
+  // Refined Intents for better compatibility
   if(keyword.includes('wifi')) { actionStr = isWin ? 'ms-settings:network-wifi' : 'intent:#Intent;action=android.settings.WIFI_SETTINGS;end'; name = "Wi-Fi"; }
   else if(keyword.includes('bluetooth')) { actionStr = isWin ? 'ms-settings:bluetooth' : 'intent:#Intent;action=android.settings.BLUETOOTH_SETTINGS;end'; name = "Bluetooth"; }
   else if(keyword.includes('battery')) { actionStr = isWin ? 'ms-settings:batterysaver' : 'intent:#Intent;action=android.settings.BATTERY_SAVER_SETTINGS;end'; name = "Battery"; }
   else if(keyword.includes('sound') || keyword.includes('ringtone') || keyword.includes('silent')) { actionStr = isWin ? 'ms-settings:sound' : 'intent:#Intent;action=android.settings.SOUND_SETTINGS;end'; name = "Sound"; }
   else if(keyword.includes('storage')) { actionStr = isWin ? 'ms-settings:storagesense' : 'intent:#Intent;action=android.settings.INTERNAL_STORAGE_SETTINGS;end'; name = "Storage"; }
-  else if(keyword.includes('camera')) { actionStr = isWin ? 'microsoft.windows.camera:' : 'intent:#Intent;action=android.media.action.STILL_IMAGE_CAMERA;end'; name = "Camera"; }
-  else if(keyword.includes('access')) { actionStr = isWin ? 'ms-settings:easeofaccess-narrator' : 'intent:#Intent;action=android.settings.ACCESSIBILITY_SETTINGS;end'; name = "Accessibility"; }
-  else if(keyword.includes('dark') || keyword.includes('display')) { actionStr = isWin ? 'ms-settings:colors' : 'intent:#Intent;action=android.settings.DISPLAY_SETTINGS;end'; name = "Display"; }
-  else if(keyword.includes('privacy')) { actionStr = isWin ? 'ms-settings:privacy' : 'intent:#Intent;action=android.settings.PRIVACY_SETTINGS;end'; name = "Privacy"; }
-  else if(keyword.includes('notification')) { actionStr = isWin ? 'ms-settings:notifications' : 'intent:#Intent;action=android.settings.APP_NOTIFICATION_SETTINGS;end'; name = "Notifications"; }
-  
-  // NEW APPS SUPPORT
+  else if(keyword.includes('camera')) { actionStr = isWin ? 'microsoft.windows.camera:' : 'intent:android.media.action.STILL_IMAGE_CAMERA#Intent;end'; name = "Camera"; }
   else if(keyword.includes('calculator')) { actionStr = isWin ? 'calculator:' : 'intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.APP_CALCULATOR;end'; name = "Calculator"; }
   else if(keyword.includes('maps')) { actionStr = isWin ? 'bingmaps:' : 'geo:0,0?q='; name = "Maps"; }
-  else if(keyword.includes('youtube')) { actionStr = 'https://www.youtube.com'; name = "YouTube"; }
-  else if(keyword.includes('whatsapp')) { actionStr = 'whatsapp://send'; name = "WhatsApp"; }
+  else if(keyword.includes('youtube')) { actionStr = 'intent://www.youtube.com#Intent;scheme=http;package=com.google.android.youtube;end'; name = "YouTube"; }
+  else if(keyword.includes('whatsapp')) { actionStr = 'intent://send#Intent;scheme=whatsapp;package=com.whatsapp;end'; name = "WhatsApp"; }
   else if(keyword.includes('phone') || keyword.includes('dial')) { actionStr = 'tel:'; name = "Phone Dialer"; }
   else if(keyword.includes('msg') || keyword.includes('sms')) { actionStr = 'sms:'; name = "Messages"; }
-  else if(keyword.includes('settings')) { actionStr = isWin ? 'ms-settings:general' : 'intent:#Intent;action=android.settings.SETTINGS;end'; name = "Settings"; }
+  else if(keyword.includes('settings')) { actionStr = isWin ? 'ms-settings:general' : 'intent:android.settings.SETTINGS#Intent;end'; name = "Settings"; }
 
   if (actionStr) {
     setTimeout(() => {
       let allowed = confirm(`SmartMobile AI wants to access your device ${name} settings.\n\nAllow Permission?`);
       if(allowed) {
-         window.location.href = actionStr;
+         try {
+           // Bypassing browser blocks with a dynamic anchor tag
+           const anchor = document.createElement('a');
+           anchor.href = actionStr;
+           anchor.target = "_blank";
+           anchor.rel = "noopener noreferrer";
+           anchor.click();
+           
+           addMsg(`🚀 Attempting to open ${name}... If it doesn't open, your browser might be blocking it.`, 'bot');
+         } catch(e) {
+           console.error("Link trigger failed", e);
+           addMsg(`⚠️ Error: Could not launch ${name} automatically.`, 'bot');
+         }
       }
     }, 500);
   }
