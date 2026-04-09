@@ -71,12 +71,65 @@ function showTyping() {
   return t;
 }
 
-function sendCmd(cmd) {
+// ===== REAL FLASHLIGHT CONTROL =====
+let activeStream = null;
+let activeTrack = null;
+
+async function controlFlashlight(turnOn) {
+  if (turnOn) {
+    try {
+      if (!activeStream) {
+        activeStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment' }
+        });
+      }
+      activeTrack = activeStream.getVideoTracks()[0];
+      
+      const capabilities = activeTrack.getCapabilities();
+      if (!capabilities.torch) {
+        throw new Error('Torch not supported on this device/browser');
+      }
+      
+      await activeTrack.applyConstraints({ advanced: [{ torch: true }] });
+      return { success: true, msg: '✓ Real Flashlight Enabled! Phone LED should be on.' };
+    } catch (err) {
+      console.error(err);
+      return { success: false, msg: `✗ ERROR: ${err.message}. Permission denied or device unsupported.` };
+    }
+  } else {
+    if (activeTrack) {
+      try { await activeTrack.applyConstraints({ advanced: [{ torch: false }] }); } catch (e) {}
+      activeTrack.stop();
+      activeTrack = null;
+    }
+    if (activeStream) {
+      activeStream.getTracks().forEach(t => t.stop());
+      activeStream = null;
+    }
+    return { success: true, msg: '✗ Flashlight Disabled.' };
+  }
+}
+
+async function sendCmd(cmd) {
   addMsg(cmd, 'user');
   const t = showTyping();
+  
+  const c = cmd.toLowerCase();
+  let botReply = getReply(cmd);
+  
+  // Intercept Torch Command to trigger real hardware
+  if (c.includes('torch') || c.includes('light') || c.includes('flash')) {
+    const turnOn = !c.includes('off') && !c.includes('disable');
+    const torchToggle = document.getElementById('torchT');
+    if (torchToggle) torchToggle.checked = turnOn;
+    
+    const res = await controlFlashlight(turnOn);
+    botReply = res.success ? res.msg : res.msg;
+  }
+
   setTimeout(() => {
     t.remove();
-    addMsg(getReply(cmd), 'bot');
+    addMsg(botReply, 'bot');
   }, 900);
 }
 
@@ -89,14 +142,23 @@ function sendMessage() {
 }
 
 // ===== TOGGLE HANDLER =====
-function handleToggle(type, on) {
+async function handleToggle(type, on) {
   const label = type.charAt(0).toUpperCase() + type.slice(1);
   addMsg(label + ' ' + (on ? 'on' : 'off') + ' panninen.', 'user');
   const t = showTyping();
+  
+  let botReply = '';
+  if (type === 'torch') {
+    const res = await controlFlashlight(on);
+    botReply = res.msg;
+  } else {
+    const icon = on ? '✓' : '✗';
+    botReply = `${icon} ${label} ${on ? 'enabled! Real app la phone la immediately reflect aagum.' : 'disabled.'}`;
+  }
+
   setTimeout(() => {
     t.remove();
-    const icon = on ? '✓' : '✗';
-    addMsg(`${icon} ${label} ${on ? 'enabled! Real app la phone la immediately reflect aagum.' : 'disabled.'}`, 'bot');
+    addMsg(botReply, 'bot');
   }, 700);
 }
 
