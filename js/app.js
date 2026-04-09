@@ -111,6 +111,7 @@ async function controlFlashlight(turnOn) {
 }
 
 let pendingFileAction = null;
+let relatedFiles = [];
 
 async function sendCmd(cmd) {
   addMsg(cmd, 'user');
@@ -121,12 +122,22 @@ async function sendCmd(cmd) {
 
   // STATE MACHINE FOR FILE SEARCH
   if (pendingFileAction) {
-    if (c.includes('yes') || c.includes('aama') || c.includes('open') || c.includes('ok') || c.includes('yes')) {
-      botReply = `📂 Opening ${pendingFileAction}... (System file viewer triggered)`;
+    if (c.includes('1') || c.includes('2') || c.includes('3')) {
+       let idx = parseInt(c.match(/[1-3]/)[0]) - 1;
+       let chosenFile = relatedFiles[idx];
+       botReply = `📂 Opening ${chosenFile}... (System file viewer triggered)`;
+       pendingFileAction = null;
+    } else if (c.includes('yes') || c.includes('aama') || c.includes('open') || c.includes('ok')) {
+       botReply = `📂 Opening ${relatedFiles[0]}... (System file viewer triggered)`;
+       pendingFileAction = null;
+    } else if (c.includes('no') || c.includes('vena') || c.includes('cancel')) {
+       botReply = `👍 Okay, file open pannala.`;
+       pendingFileAction = null;
     } else {
-      botReply = `👍 Okay, ${pendingFileAction} open pannala.`;
+       botReply = `Onnum puriyala. 1, 2, 3 nu oru number type pannunga, illatha pacha 'No' sollunga.`;
+       setTimeout(() => { t.remove(); addMsg(botReply, 'bot'); }, 900);
+       return;
     }
-    pendingFileAction = null;
     
     setTimeout(() => {
       t.remove();
@@ -138,15 +149,22 @@ async function sendCmd(cmd) {
   // SEARCH COMMAND INTERCEPT
   if (c.includes('search') || c.includes('find') || c.includes('file') || c.includes('thedi')) {
     const searchMatch = c.match(/(?:search|find|file|thedi)\s+([a-zA-Z0-9_\-\.]+)/i);
-    let fileName = searchMatch ? searchMatch[1] : 'document.pdf';
+    let keyword = searchMatch ? searchMatch[1] : 'document.pdf';
     
     if (!searchMatch) {
        const words = c.split(' ');
-       words.forEach(w => { if(w.includes('.')) fileName = w; });
+       words.forEach(w => { if(w.includes('.')) keyword = w; });
     }
     
-    pendingFileAction = fileName;
-    botReply = `🔍 File '${fileName}' located at: /Internal Storage/Downloads/${fileName}\n\nIdha ippo neenga open pannanuma? (Yes / No)`;
+    let baseName = keyword.split('.')[0];
+    relatedFiles = [
+       baseName + '.pdf',
+       baseName + '_final.docx',
+       baseName + '_copy.png'
+    ];
+    
+    pendingFileAction = baseName;
+    botReply = `🔍 '${keyword}' thodarbaana files kedachiruku:<br><br>1. 📄 ${relatedFiles[0]}<br>2. 📝 ${relatedFiles[1]}<br>3. 🖼️ ${relatedFiles[2]}<br><br>Idhula yetha open pannanum? (1, 2, 3 endru type pannunga. Vendaam na 'No' sollunga)`;
     
     setTimeout(() => {
       t.remove();
