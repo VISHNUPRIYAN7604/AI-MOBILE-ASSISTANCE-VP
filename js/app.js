@@ -110,12 +110,52 @@ async function controlFlashlight(turnOn) {
   }
 }
 
+let pendingFileAction = null;
+
 async function sendCmd(cmd) {
   addMsg(cmd, 'user');
   const t = showTyping();
   
   const c = cmd.toLowerCase();
-  let botReply = getReply(cmd);
+  let botReply = '';
+
+  // STATE MACHINE FOR FILE SEARCH
+  if (pendingFileAction) {
+    if (c.includes('yes') || c.includes('aama') || c.includes('open') || c.includes('ok') || c.includes('yes')) {
+      botReply = `📂 Opening ${pendingFileAction}... (System file viewer triggered)`;
+    } else {
+      botReply = `👍 Okay, ${pendingFileAction} open pannala.`;
+    }
+    pendingFileAction = null;
+    
+    setTimeout(() => {
+      t.remove();
+      addMsg(botReply, 'bot');
+    }, 900);
+    return;
+  }
+  
+  // SEARCH COMMAND INTERCEPT
+  if (c.includes('search') || c.includes('find') || c.includes('file') || c.includes('thedi')) {
+    const searchMatch = c.match(/(?:search|find|file|thedi)\s+([a-zA-Z0-9_\-\.]+)/i);
+    let fileName = searchMatch ? searchMatch[1] : 'document.pdf';
+    
+    if (!searchMatch) {
+       const words = c.split(' ');
+       words.forEach(w => { if(w.includes('.')) fileName = w; });
+    }
+    
+    pendingFileAction = fileName;
+    botReply = `🔍 File '${fileName}' located at: /Internal Storage/Downloads/${fileName}\n\nIdha ippo neenga open pannanuma? (Yes / No)`;
+    
+    setTimeout(() => {
+      t.remove();
+      addMsg(botReply, 'bot');
+    }, 900);
+    return;
+  }
+
+  botReply = getReply(cmd);
   
   // Intercept Torch Command to trigger real hardware
   if (c.includes('torch') || c.includes('light') || c.includes('flash')) {
